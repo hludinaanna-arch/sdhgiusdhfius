@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackMyUni - Колледжи</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary-color: #5a5ce6; --primary-hover: #4a4cd6; --text-dark: #111; --text-gray: #6b7280; --bg-light: #f9fafb; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        /* Header Styles */
+        header { 
+            background-color: #fff; 
+            padding: 1.5rem 0; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            /* ДОБАВЛЕНО: Плавная анимация для скрытия/появления */
+            transition: transform 0.3s ease-in-out; 
+        }
+        
+        /* ДОБАВЛЕНО: Класс для скрытия шапки (сдвигает её вверх на 100%) */
+        header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.8rem; font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+        .logo svg { height: 40px; width: auto; }
+        .logo .highlight-my { color: #5A5CE6; }
+        nav { display: flex; gap: 2rem; align-items: center; }
+        nav a { font-weight: 500; color: var(--text-dark); transition: color 0.3s ease; }
+        nav a:hover { color: var(--primary-color); }
+        #lang-toggle { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--text-dark); display: flex; align-items: center; transition: transform 0.3s; padding: 0.5rem; border-radius: 50%; }
+        #lang-toggle:hover { background-color: #f3f4f6; transform: rotate(15deg); }
+        .auth-buttons { display: flex; gap: 1rem; }
+        .btn { padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; display: inline-block; }
+        .btn-login { background-color: transparent; border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-login:hover { background-color: var(--primary-color); color: #fff; }
+        .btn-signup { background-color: var(--primary-color); color: #fff; }
+        .btn-signup:hover { background-color: var(--primary-hover); }
+
+        /* Page Specific Styles */
+        .page-header { 
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); 
+            padding: 5rem 0 3rem; 
+            text-align: center; 
+            border-bottom-left-radius: 3rem; 
+            border-bottom-right-radius: 3rem; 
+            margin-bottom: 3rem; 
+        }
+        .page-header h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.02em; }
+        .page-header p { font-size: 1.2rem; color: var(--text-gray); max-width: 600px; margin: 0 auto 2rem; }
+        
+        /* Search Bar & Switcher Styles */
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            padding-right: 3rem;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(90, 92, 230, 0.15);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .switch-btn {
+            background: #fff;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .switch-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(90, 92, 230, 0.3);
+        }
+        
+        .uni-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; padding-bottom: 6rem; }
+        .uni-card { 
+            background: #fff; 
+            padding: 2.5rem; 
+            border-radius: 1.5rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+            transition: transform 0.3s, box-shadow 0.3s; 
+            border-top: 5px solid var(--primary-color); 
+            display: flex;
+            flex-direction: column;
+        }
+        .uni-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(90, 92, 230, 0.1); }
+        .uni-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-color); font-weight: 700; }
+        .uni-card .loc { color: var(--text-gray); font-size: 0.95rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .uni-card p { font-size: 1rem; margin-bottom: 2rem; flex-grow: 1; line-height: 1.6; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; }
+        .tag { background: #eef2ff; color: var(--primary-color); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        
+        @media (max-width: 768px) { 
+            .header-content { flex-direction: column; gap: 1.5rem; } 
+            nav { flex-wrap: wrap; justify-content: center; } 
+            .page-header h1 { font-size: 2.5rem; } 
+            .page-header { padding: 3rem 0 2rem; margin-bottom: 2rem; }
+            .search-wrapper { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 20L15 40L50 60L85 40L50 20Z" stroke="#1F2937" stroke-width="5" stroke-linejoin="round"/><path d="M25 50V75C25 75 35 85 50 85C65 85 75 75 75 75V50" stroke="#1F2937" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="85" cy="65" r="8" fill="#5A5CE6"/><path d="M75 55L85 65" stroke="#5A5CE6" stroke-width="3" stroke-linecap="round"/></svg>
+                <span>Track<span class="highlight-my">My</span>Uni</span>
+            </div>
+            <nav>
+                <a href="index.html" data-key="nav_home">Главная</a>
+                <a href="universities.html" data-key="nav_uni">Университеты</a>
+                <a href="olympiads.html" data-key="nav_olymp">Олимпиады</a>
+                <a href="volunteering.html" data-key="nav_vol">Волонтерство</a>
+                <a href="calendar.html" data-key="nav_cal">Календарь</a>
+                <a href="reviews.html" data-key="nav_rew">Онлайн Школы</a>
+                <a href="recommendations.html">Рекомендации</a> 
+                <button id="lang-toggle" title="Switch Language"><i class="fa-solid fa-globe"></i></button>
+            </nav>
+            <div class="auth-buttons">
+                <a href="#" class="btn btn-login" data-key="btn_login">Войти</a>
+                <a href="#" class="btn btn-signup" data-key="btn_signup">Регистрация</a>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1 data-key="col_page_title">Колледжи</h1>
+                
+                <!-- Controls Container -->
+                <div class="controls-container">
+                    <div class="search-wrapper">
+                        <input type="text" id="colSearch" class="search-input" placeholder="Поиск колледжа..." data-placeholder-en="Search college..." data-placeholder-ru="Поиск колледжа...">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    </div>
+                    
+                    <a href="universities.html" class="switch-btn">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        <span data-key="switch_to_unis">Перейти к Университетам</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="container">
+            <div class="uni-list" id="colListContainer">
+                <!-- 1. МИД -->
+                <a href="college-detail.html?id=mid" class="uni-card">
+                    <h3 data-key="col_1_title">Колледж МИД России</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, Озерковская набережная</span></div>
+                    <p data-key="col_1_desc">Таможенное дело, документационное обеспечение, юриспруденция.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_customs">Таможня</span>
+                        <span class="tag" data-key="tag_law">Право</span>
+                        <span class="tag" data-key="tag_doc">Документоведение</span>
+                    </div>
+                </a>
+                
+                <!-- 2. МФК -->
+                <a href="college-detail.html?id=mfk" class="uni-card">
+                    <h3 data-key="col_2_title">Московский финансовый колледж Финуниверситета</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, ул. Олеко Дундича, д. 23</span></div>
+                    <p data-key="col_2_desc">Банковское дело, финансы, экономика и бухгалтерский учет.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_finance">Финансы</span>
+                        <span class="tag" data-key="tag_economics">Экономика</span>
+                        <span class="tag" data-key="tag_banking">Банки</span>
+                    </div>
+                </a>
+
+                <!-- 3. МГЮА -->
+                <a href="college-detail.html?id=msal" class="uni-card">
+                    <h3 data-key="col_3_title">Юридический колледж им. Н.С. Киселевой при МГЮА</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, ул. Знаменка, д. 23</span></div>
+                    <p data-key="col_3_desc">Юриспруденция: судебное администрирование, правоохранительная деятельность.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_law">Право</span>
+                        <span class="tag" data-key="tag_security">Безопасность</span>
+                        <span class="tag" data-key="tag_admin">Администрирование</span>
+                    </div>
+                </a>
+
+                <!-- 4. РАНХиГС -->
+                <a href="college-detail.html?id=ranepa" class="uni-card">
+                    <h3 data-key="col_4_title">Колледж РАНХиГС (КМПТ)</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, проспект Вернадского, д. 82</span></div>
+                    <p data-key="col_4_desc">Экономика, менеджмент, разработка ПО, социальная работа, туризм.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_management">Менеджмент</span>
+                        <span class="tag" data-key="tag_it">IT</span>
+                        <span class="tag" data-key="tag_tourism">Туризм</span>
+                    </div>
+                </a>
+
+                <!-- 5. ITHUB -->
+                <a href="college-detail.html?id=ithub" class="uni-card">
+                    <h3 data-key="col_5_title">IThub College</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_russia">Москва (200+ филиалов)</span></div>
+                    <p data-key="col_5_desc">Разработка ПО, гейм-дизайн, ИБ, цифровой дизайн, кинопроизводство.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_programming">Программирование</span>
+                        <span class="tag" data-key="tag_design">Дизайн</span>
+                        <span class="tag" data-key="tag_cinema">Кино</span>
+                    </div>
+                </a>
+
+                <!-- 6. 26 КАДР -->
+                <a href="college-detail.html?id=kadrs" class="uni-card">
+                    <h3 data-key="col_6_title">Колледж архитектуры, дизайна и реинжиниринга № 26</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, ул. Вешняковская, д. 6</span></div>
+                    <p data-key="col_6_desc">Строительство, эксплуатация зданий, промышленный дизайн, химтехнологии.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_construction">Строительство</span>
+                        <span class="tag" data-key="tag_design">Дизайн</span>
+                        <span class="tag" data-key="tag_chemistry">Химия</span>
+                    </div>
+                </a>
+
+                <!-- 7. ЦАРИЦЫНО -->
+                <a href="college-detail.html?id=tsaritsyno" class="uni-card">
+                    <h3 data-key="col_7_title">Колледж «Царицыно»</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, Пролетарский проспект, д. 78</span></div>
+                    <p data-key="col_7_desc">Туризм, гостиничное дело, поварское и кондитерское дело, веб-разработка.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_tourism">Туризм</span>
+                        <span class="tag" data-key="tag_hospitality">Гостиничное дело</span>
+                        <span class="tag" data-key="tag_culinary">Кулинария</span>
+                    </div>
+                </a>
+
+                <!-- 8. МТКП -->
+                <a href="college-detail.html?id=mtkp" class="uni-card">
+                    <h3 data-key="col_8_title">Московский техникум космического приборостроения (МГТУ)</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, ул. 2-я Бауманская, д. 5</span></div>
+                    <p data-key="col_8_desc">Разработка электронных устройств, информационные системы, приборостроение.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_space">Космос</span>
+                        <span class="tag" data-key="tag_electronics">Электроника</span>
+                        <span class="tag" data-key="tag_engineering">Инженерия</span>
+                    </div>
+                </a>
+
+                <!-- 9. РГСУ -->
+                <a href="college-detail.html?id=rgsu" class="uni-card">
+                    <h3 data-key="col_9_title">Колледж Российского государственного социального университета</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_moscow">Москва, ул. Воробьевское шоссе, д. 4</span></div>
+                    <p data-key="col_9_desc">Социальная работа, предоставление социальных услуг, педагогика и психология.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_social">Соц. работа</span>
+                        <span class="tag" data-key="tag_psychology">Психология</span>
+                        <span class="tag" data-key="tag_pedagogy">Педагогика</span>
+                    </div>
+                </a>
+
+                <!-- 10. НИТ -->
+                <a href="college-detail.html?id=nit" class="uni-card">
+                    <h3 data-key="col_10_title">Нижнекамский индустриальный техникум</h3>
+                    <div class="loc"><i class="fa-solid fa-location-dot"></i> <span data-key="col_loc_nizhnekamsk">Р. Татарстан, г. Нижнекамск</span></div>
+                    <p data-key="col_10_desc">Химическая технология, машиностроение, автоматехник, лаборант.</p>
+                    <div class="tags">
+                        <span class="tag" data-key="tag_industry">Промышленность</span>
+                        <span class="tag" data-key="tag_auto">Автодело</span>
+                        <span class="tag" data-key="tag_chemistry">Химия</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const translations = {
+            en: {
+                nav_home: "Home", nav_uni: "Universities", nav_olymp: "Olympiads",
+                btn_login: "Log In", btn_signup: "Sign Up",
+                col_page_title: "Colleges of Russia",
+                switch_to_unis: "Go to Universities",
+                
+                // Colleges Titles & Descriptions
+                col_1_title: "College of the Ministry of Foreign Affairs",
+                col_1_desc: "Customs affairs, document management, jurisprudence.",
+                col_2_title: "Moscow Financial College of FinUniv",
+                col_2_desc: "Banking, finance, economics and accounting.",
+                col_3_title: "Law College named after N.S. Kiseleva (MGUA)",
+                col_3_desc: "Jurisprudence: judicial administration, law enforcement.",
+                col_4_title: "RANEPA College (KMPT)",
+                col_4_desc: "Economics, management, software development, social work, tourism.",
+                col_5_title: "IThub College",
+                col_5_desc: "Software development, game design, info security, digital design, cinema.",
+                col_6_title: "College of Architecture, Design and Reengineering No. 26",
+                col_6_desc: "Construction, building operation, industrial design, chemical tech.",
+                col_7_title: "Tsaritsyno College",
+                col_7_desc: "Tourism, hotel business, culinary arts, web development.",
+                col_8_title: "Moscow Technical College of Space Instrument Making (BMSTU)",
+                col_8_desc: "Electronic devices, information systems, instrument making.",
+                col_9_title: "College of RGSU",
+                col_9_desc: "Social work, social services, pedagogy and psychology.",
+                col_10_title: "Nizhnekamsk Industrial Technical School",
+                col_10_desc: "Chemical technology, mechanical engineering, auto mechanic.",
+
+                // Locations
+                col_loc_moscow: "Moscow, Russia",
+                col_loc_russia: "Moscow (200+ branches)",
+                col_loc_nizhnekamsk: "Tatarstan, Nizhnekamsk",
+
+                // Tags
+                tag_customs: "Customs", tag_law: "Law", tag_doc: "Doc Management",
+                tag_finance: "Finance", tag_economics: "Economics", tag_banking: "Banking",
+                tag_security: "Security", tag_admin: "Administration",
+                tag_management: "Management", tag_it: "IT", tag_tourism: "Tourism",
+                tag_programming: "Programming", tag_design: "Design", tag_cinema: "Cinema",
+                tag_construction: "Construction", tag_chemistry: "Chemistry",
+                tag_hospitality: "Hospitality", tag_culinary: "Culinary",
+                tag_space: "Space", tag_electronics: "Electronics", tag_engineering: "Engineering",
+                tag_social: "Social Work", tag_psychology: "Psychology", tag_pedagogy: "Pedagogy",
+                tag_industry: "Industry", tag_auto: "Auto Mechanics"
+            },
+            ru: {
+                nav_home: "Главная", nav_uni: "Университеты", nav_olymp: "Олимпиады",
+                btn_login: "Войти", btn_signup: "Регистрация",
+                col_page_title: "ТОП-10 Колледжей России 2026",
+                col_page_subtitle: "Лучшие учреждения СПО с актуальными ценами и проходными баллами",
+                switch_to_unis: "Перейти к Университетам",
+
+                // Colleges Titles & Descriptions
+                col_1_title: "Колледж МИД России",
+                col_1_desc: "Таможенное дело, документационное обеспечение, юриспруденция.",
+                col_2_title: "Московский финансовый колледж Финуниверситета",
+                col_2_desc: "Банковское дело, финансы, экономика и бухгалтерский учет.",
+                col_3_title: "Юридический колледж им. Н.С. Киселевой при МГЮА",
+                col_3_desc: "Юриспруденция: судебное администрирование, правоохранительная деятельность.",
+                col_4_title: "Колледж РАНХиГС (КМПТ)",
+                col_4_desc: "Экономика, менеджмент, разработка ПО, социальная работа, туризм.",
+                col_5_title: "IThub College",
+                col_5_desc: "Разработка ПО, гейм-дизайн, ИБ, цифровой дизайн, кинопроизводство.",
+                col_6_title: "Колледж архитектуры, дизайна и реинжиниринга № 26",
+                col_6_desc: "Строительство, эксплуатация зданий, промышленный дизайн, химтехнологии.",
+                col_7_title: "Колледж «Царицыно»",
+                col_7_desc: "Туризм, гостиничное дело, поварское и кондитерское дело, веб-разработка.",
+                col_8_title: "Московский техникум космического приборостроения (МГТУ)",
+                col_8_desc: "Разработка электронных устройств, информационные системы, приборостроение.",
+                col_9_title: "Колледж Российского государственного социального университета",
+                col_9_desc: "Социальная работа, предоставление социальных услуг, педагогика и психология.",
+                col_10_title: "Нижнекамский индустриальный техникум",
+                col_10_desc: "Химическая технология, машиностроение, автоматехник, лаборант.",
+
+                // Locations
+                col_loc_moscow: "Москва, Россия",
+                col_loc_russia: "Москва (200+ филиалов)",
+                col_loc_nizhnekamsk: "Р. Татарстан, г. Нижнекамск",
+
+                // Tags
+                tag_customs: "Таможня", tag_law: "Право", tag_doc: "Документоведение",
+                tag_finance: "Финансы", tag_economics: "Экономика", tag_banking: "Банки",
+                tag_security: "Безопасность", tag_admin: "Администрирование",
+                tag_management: "Менеджмент", tag_it: "IT", tag_tourism: "Туризм",
+                tag_programming: "Программирование", tag_design: "Дизайн", tag_cinema: "Кино",
+                tag_construction: "Строительство", tag_chemistry: "Химия",
+                tag_hospitality: "Гостиничное дело", tag_culinary: "Кулинария",
+                tag_space: "Космос", tag_electronics: "Электроника", tag_engineering: "Инженерия",
+                tag_social: "Соц. работа", tag_psychology: "Психология", tag_pedagogy: "Педагогика",
+                tag_industry: "Промышленность", tag_auto: "Автодело"
+            }
+        };
+
+        const langToggle = document.getElementById('lang-toggle');
+        let currentLang = localStorage.getItem('site_lang') || 'en';
+
+        function applyLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update search placeholder based on language
+            const searchInput = document.getElementById('colSearch');
+            if(searchInput) {
+                searchInput.placeholder = translations[lang][searchInput.dataset[`placeholder${lang.charAt(0).toUpperCase() + lang.slice(1)}`]] || searchInput.dataset['placeholderEn'];
+            }
+
+            localStorage.setItem('site_lang', lang);
+        }
+
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'ru' : 'en';
+            applyLanguage(currentLang);
+            langToggle.style.transform = 'rotate(360deg)';
+            setTimeout(() => langToggle.style.transform = 'rotate(0deg)', 300);
+        });
+
+        // --- SEARCH FUNCTIONALITY ---
+        const searchInput = document.getElementById('colSearch');
+        const colCards = document.querySelectorAll('.uni-card');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            
+            colCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('p').textContent.toLowerCase();
+                const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.textContent.toLowerCase()).join(' ');
+                
+                if (title.includes(query) || desc.includes(query) || tags.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        applyLanguage(currentLang);
+
+        // --- SMART HEADER LOGIC (ДОБАВЛЕНО) ---
+        let lastScrollY = window.scrollY;
+        const header = document.querySelector('header');
+        // Порог срабатывания (чтобы шапка не дергалась при мелкой прокрутке в самом верху)
+        const scrollThreshold = 100; 
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            
+            // Если прокрутили больше порога
+            if (currentScrollY > scrollThreshold) {
+                // Если скроллим ВНИЗ -> скрываем
+                if (currentScrollY > lastScrollY) {
+                    header.classList.add('hidden');
+                } 
+                // Если скроллим ВВЕРХ -> показываем
+                else {
+                    header.classList.remove('hidden');
+                }
+            } else {
+                // Если мы в самом верху страницы, всегда показываем шапку
+                header.classList.remove('hidden');
+            }
+            
+            lastScrollY = currentScrollY;
+        });
+    </script>
+</body>
+</html>
